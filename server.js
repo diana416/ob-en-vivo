@@ -1,7 +1,7 @@
 // ================================================================
-// OB en vivo — server
+// OB en vivo — server (estructura plana: todos los archivos en raíz)
 // - Fetch al arrancar + cron diario 9:00 CDMX + POST /api/refresh
-// - Sirve el dashboard estático (public/) y /api/data
+// - Sirve el dashboard (index.html) y /api/data
 // - Si una fuente falla, conserva el último dato bueno y lo marca.
 // ================================================================
 const express = require("express");
@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 let state = {
-  actualizado: null,          // timestamp del último refresh exitoso (por fuente)
+  actualizado: null,
   chartmogul: { data: null, actualizado: null, error: null },
   hubspot: { data: null, actualizado: null, error: null },
   refrescando: false,
@@ -50,13 +50,14 @@ async function refresh(origen = "cron") {
   console.log(`[refresh] fin ${new Date().toISOString()}`);
 }
 
-app.use(express.static(path.join(__dirname, "..", "public")));
+// Solo servimos el dashboard — no exponemos el resto de archivos del repo
+app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 app.get("/api/data", (_req, res) => res.json(state));
 
 app.post("/api/refresh", async (_req, res) => {
   if (state.refrescando) return res.status(409).json({ ok: false, msg: "Refresh en curso" });
-  refresh("manual"); // no await: responde ya, el front hace polling
+  refresh("manual");
   res.json({ ok: true });
 });
 
