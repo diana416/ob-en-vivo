@@ -1,0 +1,14 @@
+{
+  "name": "ob-en-vivo-leadsales",
+  "version": "1.0.0",
+  "description": "Tablero en vivo de Onboarding Leadsales — cron 9:00 CDMX (ChartMogul + HubSpot)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3"
+  }
+}
