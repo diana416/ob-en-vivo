@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OB en vivo — Leadsales</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F4; --panel:#FFFFFF; --ink:#17251E; --ink2:#5A6B62;
+  --line:#E1E6E0; --brand:#0E7C6B;
+  --verde:#1E8E5A; --verde-bg:#E7F5EC;
+  --amarillo:#B97D0F; --amarillo-bg:#FBF1DB;
+  --rojo:#C23A3A; --rojo-bg:#FBE9E9;
+  --sd:#8A968E; --sd-bg:#EFF1EE;
+  --c-conexion:#0E7C6B; --c-activacion:#2467A8; --c-adopcion:#7A4FB0; --c-health:#B4562A;
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Archivo',system-ui,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;
+  padding:28px clamp(16px,4vw,48px) 48px;font-variation-settings:'wdth' 92;}
+button{font:inherit}
+.hd{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px}
+.hd-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);margin-bottom:4px}
+.hd-title{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1}
+.hd-tesis{margin-top:8px;max-width:52ch;color:var(--ink2);font-size:14px}
+.hd-tesis strong{color:var(--ink)}
+.hd-right{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.ts-row{display:flex;gap:8px;align-items:center}
+.ts-chip{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 12px;display:inline-flex;align-items:center;gap:7px}
+.ts-dot{width:7px;height:7px;border-radius:50%;background:var(--verde);display:inline-block;animation:blink 2s infinite}
+.ts-dot-err{background:var(--rojo);animation:none}
+@keyframes blink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.ts-dot{animation:none}}
+.btn-retry{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:5px 12px;font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer;color:var(--ink)}
+.btn-retry:hover{border-color:var(--brand);color:var(--brand)}
+.btn-retry:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.outcomes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:8px}
+.ocard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.ocard-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
+.ocard-valor{font-size:clamp(26px,3vw,34px);font-weight:800;letter-spacing:-.02em;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.ocard-sd{color:var(--sd);font-weight:600}
+.ocard-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2)}
+.live-nota{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2);margin:6px 2px 0;line-height:1.5}
+.live-nota-err{color:var(--rojo)}
+.riel-wrap{margin:26px 0 30px}
+.riel{position:relative;height:44px;border-bottom:1px solid var(--line)}
+.riel-seg{position:absolute;top:6px;height:26px;border-radius:7px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden}
+.riel-tick{position:absolute;bottom:-20px;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2)}
+.riel-tick i{display:block;width:1px;height:8px;background:var(--line);margin:0 auto 2px}
+.riel-nota{margin-top:30px;font-size:12.5px;color:var(--ink2);max-width:70ch}
+.riel-nota strong{color:var(--ink)}
+@media (max-width:560px){.riel-nombre{display:none}}
+.etapas{display:grid;gap:16px}
+.etapa{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;border-top:4px solid var(--line)}
+.etapa-hd{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
+.etapa-hd-l{display:flex;gap:12px;align-items:center}
+.etapa-orden{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);border:1px solid var(--line);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.etapa-nombre{font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
+.etapa-ventana{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)}
+.etapa-kpi{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.kpi-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:help;position:relative}
+.kpi-info{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:9px;border:1px solid var(--ink2);color:var(--ink2);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center}
+.kpi-formal{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2);text-align:right;max-width:340px}
+@media (max-width:640px){.etapa-kpi{align-items:flex-start}.kpi-formal{text-align:left}}
+.kpi-chip .tt-box{position:absolute;bottom:calc(100% + 8px);right:0;z-index:30;width:min(300px,80vw);background:var(--ink);color:#fff;font-size:12px;font-weight:400;line-height:1.45;padding:10px 12px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .12s}
+.kpi-chip:hover .tt-box,.kpi-chip:focus-within .tt-box{opacity:1}
+.stage-live{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center;background:var(--bg);border:1px dashed var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.stage-live-l{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.stage-live-label{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
+.stage-live-valor{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.stage-live-n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)}
+.stage-live-nota{font-size:11.5px;color:var(--ink2);max-width:46ch}
+.etapa-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.pcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg)}
+.pcard-verde{background:var(--verde-bg);border-color:#C6E6D2}
+.pcard-amarillo{background:var(--amarillo-bg);border-color:#EBD9AE}
+.pcard-rojo{background:var(--rojo-bg);border-color:#EFC7C7}
+.pcard-top{display:flex;justify-content:space-between;align-items:center}
+.pcard-top-r{display:flex;align-items:center;gap:6px}
+.src-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:2px 7px;color:var(--brand)}
+.pcard-nombre{font-weight:700;font-size:15px}
+.dot{width:11px;height:11px;border-radius:50%}
+.dot-verde{background:var(--verde)}.dot-amarillo{background:var(--amarillo)}
+.dot-rojo{background:var(--rojo)}.dot-sd{background:var(--sd-bg);border:1.5px dashed var(--sd)}
+.pcard-valor{font-size:22px;font-weight:800;margin:6px 0 8px;font-variant-numeric:tabular-nums}
+.pcard-meta{font-size:11.5px;font-weight:500;color:var(--ink2)}
+.pcard-foot{display:flex;justify-content:space-between;font-size:11px;color:var(--ink2)}
+details.valid{margin-top:20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+details.valid summary{cursor:pointer;font-size:13px;font-weight:600}
+details.valid table{border-collapse:collapse;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11px}
+details.valid td,details.valid th{border:1px solid var(--line);padding:4px 10px;text-align:right}
+.ft{margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+.ft p{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink2);max-width:90ch;line-height:1.6}
+</style>
+</head>
+<body>
+<script>
+// ================================================================
+// // ACTUALIZAR AQUÍ — METAS por persona (no viven en ninguna fuente)
+// Sin meta → semáforo gris "s/d". Unidad: %.
+// ================================================================
+const METAS = {
+  Zahid: null, Fer: null,           // Conexión (KPI a nivel etapa)
+  Manu: null, Eli: null,            // Activación
+  Mar: null, Kari: null, Karla: null, // Adopción
+  Ana: null, Rich: null,            // Health
+};
+
+const ETAPAS = [
+  { id:"conexion", orden:"I", nombre:"Conexión", ventana:"días 0–14", d0:0, d1:14,
+    kpi:"Conexión estable (≤14 días)", kpiSimple:"WhatsApp conectado y estable",
+    definicion:"WhatsApp conectado + 1ª plantilla aprobada/entregada + sin caerse durante 7 días.",
+    duenos:"Zahid · Fer", personas:["Zahid","Fer"], color:"var(--c-conexion)",
+    fuente:"ChartMogul · atributo Conexion_Exitosa_OB_M (nivel etapa)" },
+  { id:"activacion", orden:"II", nombre:"Activación", ventana:"días 14–24 · SLA ≤30d", d0:14, d1:24,
+    kpi:"Equipo activo (≤30 días)", kpiSimple:"El equipo de ventas ya usa la plataforma",
+    definicion:"≥60% de los vendedores invitados movieron al menos 1 lead.",
+    duenos:"Manu · Eli", personas:["Manu","Eli"], color:"var(--c-activacion)",
+    fuente:"HubSpot · WKS, % usuarios activos ≥60" },
+  { id:"adopcion", orden:"III", nombre:"Adopción", ventana:"días 24–31", d0:24, d1:31,
+    kpi:"Cuenta sana al día 31", kpiSimple:"Cuenta sana, lista para handoff",
+    definicion:"Healthscore ≥80 + actividad reciente, lista para el handoff a Health Maintenance.",
+    duenos:"Mar · Kari · Karla", personas:["Mar","Kari","Karla"], color:"var(--c-adopcion)",
+    fuente:"HubSpot · WKS, health score ≥80" },
+  { id:"health", orden:"IV", nombre:"Health Maintenance", ventana:"día 31+ (post-OB)", d0:31, d1:45,
+    kpi:"Retención M2/M3", kpiSimple:"Las cuentas se quedan en mes 2 y 3",
+    definicion:"Retención M2/M3 de las cuentas que reciben en el handoff.",
+    duenos:"Ana · Rich", personas:["Ana","Rich"], color:"var(--c-health)",
+    fuente:"HubSpot · WKS, suscripción activa post-handoff (proxy)" },
+];
+
+const SEM = (v, m) => v==null||m==null ? "sd" : v>=m ? "verde" : v>=m*.9 ? "amarillo" : "rojo";
+const SEM_LABEL = { verde:"En meta", amarillo:"Cerca", rojo:"Debajo", sd:"s/d" };
+const fmt = (v) => v==null ? "s/d" : v+"%";
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function tsCDMX(iso){
+  if(!iso) return "s/d";
+  return new Date(iso).toLocaleString("es-MX",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",timeZone:"America/Mexico_City"})+" CDMX";
+}
+
+function personaHTML(nombre, live){
+  const valor = live && live.valor!=null ? live.valor : null;
+  const s = SEM(valor, METAS[nombre]);
+  const n = live && live.n!=null ? ` · n=${live.n}` : "";
+  const sinDato = live && live.n_sin_dato ? `${live.n_sin_dato} sin dato` : "";
+  return `<div class="pcard pcard-${s}">
+    <div class="pcard-top"><span class="pcard-nombre">${esc(nombre)}</span>
+      <span class="pcard-top-r">${valor!=null?`<span class="src-chip">HS · vivo${n}</span>`:""}
+      <span class="dot dot-${s}" title="${SEM_LABEL[s]}"></span></span></div>
+    <div class="pcard-valor">${fmt(valor)}<span class="pcard-meta"> / meta ${fmt(METAS[nombre])}</span></div>
+    <div class="pcard-foot"><span>${esc(sinDato)}</span><span></span></div>
+  </div>`;
+}
+
+function render(st){
+  const cm = st.chartmogul?.data, hs = st.hubspot?.data;
+  const cab = cm?.cohortes?.cabecera, con = cm?.conexion;
+  const err = st.chartmogul?.error || st.hubspot?.error;
+  const MAX = 45;
+
+  const outc = (label, v, sub) => `<div class="ocard"><div class="ocard-label">${label}</div>
+    <div class="ocard-valor ${v==null?"ocard-sd":""}">${fmt(v)}</div>
+    <div class="ocard-sub">${esc(sub)}</div></div>`;
+
+  const liveDe = (etapaId, nombre) => {
+    if(!hs) return null;
+    if(etapaId==="activacion") return hs.activacion?.[nombre];
+    if(etapaId==="adopcion") return hs.adopcion?.[nombre];
+    if(etapaId==="health") return hs.health?.[nombre];
+    return null;
+  };
+
+  document.body.innerHTML = `
+  <header class="hd">
+    <div>
+      <p class="hd-eyebrow">Onboarding · Leadsales</p>
+      <h1 class="hd-title">OB en vivo</h1>
+      <p class="hd-tesis">El OB se mide por <strong>retención temprana</strong>. La conversión trial→plan es un resultado secundario, no el KPI líder.</p>
+    </div>
+    <div class="hd-right">
+      <div class="ts-row">
+        <span class="ts-chip"><i class="ts-dot ${err?"ts-dot-err":""}"></i>Última actualización: ${tsCDMX(st.actualizado)}</span>
+        <button class="btn-retry" onclick="refrescar(this)">↻ Actualizar ahora</button>
+      </div>
+      <span class="ts-chip">Auto-refresh diario 9:00 CDMX</span>
+    </div>
+  </header>
+
+  <section class="outcomes">
+    ${outc("Retención M1", cab?.m1, cab?`ChartMogul · cohorte ${cab.cohorte} (n=${cab.n})`:"ChartMogul")}
+    ${outc("Retención M2", cab?.m2, cab?`ChartMogul · cohorte ${cab.cohorte}`:"ChartMogul")}
+    ${outc("Retención M3", cab?.m3, cab?`ChartMogul · cohorte ${cab.cohorte}`:"ChartMogul")}
+    ${outc("Conexión estable", con?.valor, con?`CM · cohorte ${con.cohorte}`:"ChartMogul")}
+  </section>
+  ${err?`<p class="live-nota live-nota-err">Fuente con error: ${esc(err)} — se muestra el último dato bueno o "s/d".</p>`:""}
+
+  <div class="riel-wrap"><div class="riel">
+    ${ETAPAS.map(e=>`<div class="riel-seg" style="background:${e.color};left:${e.d0/MAX*100}%;width:${(e.d1-e.d0)/MAX*100}%${e.id==="health"?";border-right:3px dashed rgba(255,255,255,.6)":""}"><span class="riel-nombre">${e.nombre}</span></div>`).join("")}
+    ${[0,14,24,31].map(d=>`<span class="riel-tick" style="left:${d/MAX*100}%"><i></i>d${d}</span>`).join("")}
+    <span class="riel-tick" style="left:100%;transform:translateX(-100%)"><i></i>31+</span>
+  </div>
+  <p class="riel-nota">Las ventanas de días son <strong>topes máximos</strong> (agilidad), no tiempos de espera: el cliente avanza de etapa en cuanto cumple.</p></div>
+
+  <main class="etapas">
+    ${ETAPAS.map(e=>`
+    <section class="etapa" style="border-top-color:${e.color}">
+      <div class="etapa-hd">
+        <div class="etapa-hd-l"><span class="etapa-orden">${e.orden}</span>
+          <div><h2 class="etapa-nombre">${e.nombre}</h2><span class="etapa-ventana">${e.ventana} · ${e.duenos}</span></div></div>
+        <div class="etapa-kpi">
+          <span class="kpi-chip" tabindex="0">${e.kpiSimple} <i class="kpi-info">i</i><span class="tt-box">${e.definicion}</span></span>
+          <span class="kpi-formal">${e.kpi} · ${e.fuente}</span>
+        </div>
+      </div>
+      ${e.id==="conexion"?`
+      <div class="stage-live">
+        <div class="stage-live-l">
+          <span class="stage-live-label">KPI de etapa · en vivo (CM)</span>
+          <span class="stage-live-valor">${fmt(con?.valor)}</span>
+          ${con&&con.n_total?`<span class="stage-live-n">${con.n_segmento}/${con.n_total} · ${con.cohorte}</span>`:""}
+        </div>
+        <span class="stage-live-nota">${esc(con?.nota||"Sin datos de ChartMogul.")}</span>
+      </div>`:""}
+      <div class="etapa-cards">${e.personas.map(p=>personaHTML(p, liveDe(e.id,p))).join("")}</div>
+    </section>`).join("")}
+  </main>
+
+  <details class="valid"><summary>Tabla de validación (cohortes CM + notas de fuentes)</summary>
+    ${cm?.cohortes?.tabla?`<table><tr><th>Cohorte</th><th>n</th><th>M1</th><th>M2</th><th>M3</th></tr>
+      ${cm.cohortes.tabla.map(r=>`<tr><td>${r.cohorte}</td><td>${r.n}</td><td>${fmt(r.m1)}</td><td>${fmt(r.m2)}</td><td>${fmt(r.m3)}</td></tr>`).join("")}</table>`:"<p class='live-nota'>Sin tabla de cohortes.</p>"}
+    ${hs?.notas?.length?`<p class="live-nota">HubSpot: ${hs.notas.map(esc).join(" · ")}</p>`:""}
+    ${hs?.props_usadas?`<p class="live-nota">Props HS: ${esc(Object.entries(hs.props_usadas).map(([k,v])=>k+"="+(v||"s/d")).join(", "))}</p>`:""}
+  </details>
+
+  <footer class="ft"><p>Fuentes: ChartMogul (cohortes calculadas vía API + atributo Conexion_Exitosa_OB_M) y HubSpot (objeto WKS: % usuarios activos, health score, estado de suscripción). Health = proxy de retención M2/M3, no cohorte real. Refresh: diario 9:00 CDMX + botón manual. Sin fuente → "s/d". Nunca se muestran números inventados.</p></footer>`;
+}
+
+async function cargar(){
+  try{
+    const res = await fetch("/api/data");
+    render(await res.json());
+  }catch(e){
+    document.body.innerHTML = `<p style="font-family:monospace;padding:24px">Error cargando /api/data: ${esc(e.message)}</p>`;
+  }
+}
+
+async function refrescar(btn){
+  btn.disabled = true; btn.textContent = "…";
+  await fetch("/api/refresh",{method:"POST"}).catch(()=>{});
+  // polling: el refresh tarda (pagina clientes de CM). Reintenta cada 5s hasta 2 min.
+  const t0 = Date.now();
+  const iv = setInterval(async ()=>{
+    const st = await fetch("/api/data").then(r=>r.json()).catch(()=>null);
+    if(st && !st.refrescando){ clearInterval(iv); render(st); }
+    else if(Date.now()-t0 > 120000){ clearInterval(iv); cargar(); }
+  }, 5000);
+}
+
+cargar();
+</script>
+</body>
+</html>
