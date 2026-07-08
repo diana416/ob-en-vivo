@@ -1,7 +1,7 @@
 // ================================================================
 // OB en vivo — server (estructura plana: todos los archivos en raíz)
 // - Fetch al arrancar + cron diario 9:00 CDMX + POST /api/refresh
-// - Sirve el dashboard (index.html) y /api/data
+// - Sirve el dashboard (index.html) y /api/data (incluye METAS)
 // - Si una fuente falla, conserva el último dato bueno y lo marca.
 // ================================================================
 const express = require("express");
@@ -53,7 +53,7 @@ async function refresh(origen = "cron") {
 // Solo servimos el dashboard — no exponemos el resto de archivos del repo
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
-app.get("/api/data", (_req, res) => res.json(state));
+app.get("/api/data", (_req, res) => res.json({ ...state, metas: CFG.METAS }));
 
 app.post("/api/refresh", async (_req, res) => {
   if (state.refrescando) return res.status(409).json({ ok: false, msg: "Refresh en curso" });
@@ -62,6 +62,16 @@ app.post("/api/refresh", async (_req, res) => {
 });
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+// Diagnóstico: estructura real de pipelines y propiedades de owner del WKS
+app.get("/api/debug", async (_req, res) => {
+  try {
+    const { debugEstructura } = require("./hubspot");
+    res.json(await debugEstructura());
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) });
+  }
+});
 
 cron.schedule(CFG.CRON_EXPR, () => refresh("cron"), { timezone: CFG.TZ });
 

@@ -33,16 +33,31 @@ button{font:inherit}
 @media (prefers-reduced-motion:reduce){.ts-dot{animation:none}}
 .btn-retry{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:5px 12px;font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer;color:var(--ink)}
 .btn-retry:hover{border-color:var(--brand);color:var(--brand)}
-.btn-retry:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.outcomes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:8px}
+.outcomes{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:8px}
 .ocard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
 .ocard-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
 .ocard-valor{font-size:clamp(26px,3vw,34px);font-weight:800;letter-spacing:-.02em;margin:4px 0 2px;font-variant-numeric:tabular-nums}
 .ocard-sd{color:var(--sd);font-weight:600}
 .ocard-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2)}
+.ocard-meta{font-size:12px;font-weight:600;margin:2px 0 4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.delta-verde{color:var(--verde)} .delta-rojo{color:var(--rojo)} .delta-sd{color:var(--sd);font-weight:500}
+.metabar{height:5px;border-radius:99px;background:var(--sd-bg);overflow:hidden;margin-top:6px}
+.metabar i{display:block;height:100%;border-radius:99px}
+.pulse{animation:blink 1s infinite}
 .live-nota{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2);margin:6px 2px 0;line-height:1.5}
 .live-nota-err{color:var(--rojo)}
-.riel-wrap{margin:26px 0 30px}
+.embudo{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:14px 0 4px}
+.emb-hd{margin-bottom:12px}
+.emb-hd h3{font-size:16px;font-weight:800}
+.emb-sub{font-size:12px;color:var(--ink2)}
+.emb-row{display:grid;grid-template-columns:minmax(140px,220px) 1fr 52px minmax(120px,180px);gap:10px;align-items:center;padding:5px 0}
+.emb-label{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.emb-barwrap{height:16px;background:var(--sd-bg);border-radius:6px;overflow:hidden}
+.emb-bar{height:100%;border-radius:6px;transition:width .3s}
+.emb-n{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;text-align:right}
+.emb-pct{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink2)}
+@media (max-width:640px){.emb-row{grid-template-columns:110px 1fr 40px;gap:6px}.emb-pct{display:none}}
+.riel-wrap{margin:26px 0 14px}
 .riel{position:relative;height:44px;border-bottom:1px solid var(--line)}
 .riel-seg{position:absolute;top:6px;height:26px;border-radius:7px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden}
 .riel-tick{position:absolute;bottom:-20px;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2)}
@@ -50,6 +65,16 @@ button{font:inherit}
 .riel-nota{margin-top:30px;font-size:12.5px;color:var(--ink2);max-width:70ch}
 .riel-nota strong{color:var(--ink)}
 @media (max-width:560px){.riel-nombre{display:none}}
+details.como{margin:14px 0 22px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+details.como summary{cursor:pointer;font-size:14.5px;font-weight:700;list-style-position:inside}
+details.como summary span{font-weight:400;color:var(--ink2);font-size:12.5px}
+.como-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px}
+.como-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);border-top:3px solid var(--line)}
+.como-card h4{font-size:13.5px;margin-bottom:6px}
+.como-card p{font-size:12.5px;color:var(--ink2);line-height:1.5;margin-bottom:6px}
+.como-card p strong{color:var(--ink)}
+.como-card .llenar{background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5}
+.como-card .llenar b{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);display:block;margin-bottom:3px}
 .etapas{display:grid;gap:16px}
 .etapa{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;border-top:4px solid var(--line)}
 .etapa-hd{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
@@ -70,6 +95,7 @@ button{font:inherit}
 .stage-live-valor{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
 .stage-live-n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)}
 .stage-live-nota{font-size:11.5px;color:var(--ink2);max-width:46ch}
+.warn-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;background:var(--amarillo-bg);color:var(--amarillo);border:1px solid #EBD9AE;border-radius:99px;padding:2px 8px}
 .etapa-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 .pcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg)}
 .pcard-verde{background:var(--verde-bg);border-color:#C6E6D2}
@@ -95,17 +121,6 @@ details.valid td,details.valid th{border:1px solid var(--line);padding:4px 10px;
 </head>
 <body>
 <script>
-// ================================================================
-// // ACTUALIZAR AQUÍ — METAS por persona (no viven en ninguna fuente)
-// Sin meta → semáforo gris "s/d". Unidad: %.
-// ================================================================
-const METAS = {
-  Zahid: null, Fer: null,           // Conexión (KPI a nivel etapa)
-  Manu: null, Eli: null,            // Activación
-  Mar: null, Kari: null, Karla: null, // Adopción
-  Ana: null, Rich: null,            // Health
-};
-
 const ETAPAS = [
   { id:"conexion", orden:"I", nombre:"Conexión", ventana:"días 0–14", d0:0, d1:14,
     kpi:"Conexión estable (≤14 días)", kpiSimple:"WhatsApp conectado y estable",
@@ -131,40 +146,160 @@ const ETAPAS = [
 
 const SEM = (v, m) => v==null||m==null ? "sd" : v>=m ? "verde" : v>=m*.9 ? "amarillo" : "rojo";
 const SEM_LABEL = { verde:"En meta", amarillo:"Cerca", rojo:"Debajo", sd:"s/d" };
+const SEM_COLOR = { verde:"var(--verde)", amarillo:"var(--amarillo)", rojo:"var(--rojo)", sd:"var(--sd)" };
 const fmt = (v) => v==null ? "s/d" : v+"%";
 const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// META efectiva por persona: override en config → si no, la de su etapa
+let METalmacen = { outcomes:{}, etapas:{}, personas:{} };
+const metaDe = (nombre, etapaId) => METalmacen.personas?.[nombre] ?? METalmacen.etapas?.[etapaId] ?? null;
 
 function tsCDMX(iso){
   if(!iso) return "s/d";
   return new Date(iso).toLocaleString("es-MX",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",timeZone:"America/Mexico_City"})+" CDMX";
 }
 
-function personaHTML(nombre, live){
+// "Objetivo 90% · faltan 3.9 pp" / "▲ +2.1 pp sobre objetivo"
+function metaLinea(valor, meta){
+  if(meta==null) return `<span class="delta-sd">Objetivo: s/d</span>`;
+  if(valor==null) return `<span class="delta-sd">Objetivo: ${meta}%</span>`;
+  const d = +(valor-meta).toFixed(1);
+  return d >= 0
+    ? `<span>Objetivo: ${meta}%</span> <span class="delta-verde">▲ +${d} pp</span>`
+    : `<span>Objetivo: ${meta}%</span> <span class="delta-rojo">▼ faltan ${Math.abs(d)} pp</span>`;
+}
+function metaBarra(valor, meta){
+  if(meta==null||valor==null) return "";
+  const pct = Math.min(100, Math.max(2, (valor/meta)*100));
+  const s = SEM(valor, meta);
+  return `<div class="metabar"><i style="width:${pct}%;background:${SEM_COLOR[s]}"></i></div>`;
+}
+
+function personaHTML(nombre, etapaId, live){
   const valor = live && live.valor!=null ? live.valor : null;
-  const s = SEM(valor, METAS[nombre]);
+  const meta = metaDe(nombre, etapaId);
+  const s = SEM(valor, meta);
   const n = live && live.n!=null ? ` · n=${live.n}` : "";
   const sinDato = live && live.n_sin_dato ? `${live.n_sin_dato} sin dato` : "";
   return `<div class="pcard pcard-${s}">
     <div class="pcard-top"><span class="pcard-nombre">${esc(nombre)}</span>
-      <span class="pcard-top-r">${valor!=null?`<span class="src-chip">HS · vivo${n}</span>`:""}
+      <span class="pcard-top-r">${valor!=null?`<span class="src-chip">HS · mes${n}</span>`:""}
       <span class="dot dot-${s}" title="${SEM_LABEL[s]}"></span></span></div>
-    <div class="pcard-valor">${fmt(valor)}<span class="pcard-meta"> / meta ${fmt(METAS[nombre])}</span></div>
-    <div class="pcard-foot"><span>${esc(sinDato)}</span><span></span></div>
+    <div class="pcard-valor">${fmt(valor)}<span class="pcard-meta"> / obj ${fmt(meta)}</span></div>
+    ${metaBarra(valor, meta)}
+    <div class="pcard-foot" style="margin-top:6px"><span>${esc(sinDato)}</span><span></span></div>
   </div>`;
 }
 
+function outcardHTML(label, valor, meta, sub){
+  return `<div class="ocard"><div class="ocard-label">${label}</div>
+    <div class="ocard-valor ${valor==null?"ocard-sd":""}">${fmt(valor)}</div>
+    <div class="ocard-meta">${metaLinea(valor, meta)}</div>
+    ${metaBarra(valor, meta)}
+    <div class="ocard-sub" style="margin-top:6px">${esc(sub)}</div></div>`;
+}
+
+// ---------- sección "¿Cómo se mide?" para no-técnicos ----------
+function comoHTML(){
+  return `<details class="como"><summary>❓ ¿Cómo se mide este tablero? <span>— qué cuenta cada número y qué hay que llenar para que funcione</span></summary>
+  <div class="como-grid">
+    <div class="como-card" style="border-top-color:var(--sd)">
+      <h4>📊 Retención M1/M2/M3 (tarjetas de arriba)</h4>
+      <p>De cada generación de clientes nuevos (cohorte mensual), <strong>qué % sigue pagando</strong> 1, 2 y 3 meses después de contratar. Es el resultado final de todo el OB.</p>
+      <div class="llenar"><b>Qué hay que llenar</b>Nada — sale automático de ChartMogul (Stripe).</div>
+    </div>
+    <div class="como-card" style="border-top-color:var(--c-conexion)">
+      <h4>🟢 Conexión (Zahid · Fer)</h4>
+      <p>De los clientes nuevos del mes, <strong>qué % logró conectar WhatsApp de forma estable en sus primeros 14 días</strong>. Cuenta como logrado si el cliente tiene el atributo <strong>Conexion_Exitosa_OB_M</strong> con valor <strong>Cloud_API</strong> o <strong>COEX</strong>.</p>
+      <div class="llenar"><b>Qué hay que llenar</b>En ChartMogul, en CADA cliente nuevo: atributo <strong>Conexion_Exitosa_OB_M</strong> → Cloud_API o COEX si conectó, No_Exitosa si no. <strong>Si se deja vacío, cuenta como NO logrado</strong> — por eso hoy el número se ve bajo: la mayoría está sin llenar.</div>
+    </div>
+    <div class="como-card" style="border-top-color:var(--c-activacion)">
+      <h4>🔵 Activación (Manu · Eli)</h4>
+      <p>De las cuentas activas de cada setuper, <strong>qué % ya tiene a su equipo de ventas usando la plataforma</strong>: al menos 60% de los vendedores invitados movieron 1 lead.</p>
+      <div class="llenar"><b>Qué hay que llenar</b>En HubSpot, en el WKS: la propiedad <strong>"% usuarios activos"</strong> (sección Activación OB). Los WKS sin ese dato aparecen como "sin dato" y NO se evalúan — hoy son la gran mayoría.</div>
+    </div>
+    <div class="como-card" style="border-top-color:var(--c-adopcion)">
+      <h4>🟣 Adopción (Mar · Kari · Karla)</h4>
+      <p>De las cuentas activas de cada setuper, <strong>qué % está sana al llegar al día 31</strong>: health score de 80 o más.</p>
+      <div class="llenar"><b>Qué hay que llenar</b>Nada a mano — el <strong>WAPI Health Score</strong> se calcula solo. Lo que SÍ depende del setuper: que cada cuenta suya esté <strong>asignada a su nombre</strong> en el WKS y en el estado correcto (sin ganado/perdido si sigue activa). Cuentas sin score aparecen "sin dato".</div>
+    </div>
+    <div class="como-card" style="border-top-color:var(--c-health)">
+      <h4>🟠 Health Maintenance (Ana · Rich)</h4>
+      <p>De las cuentas que ya contrataron plan y pasaron a su cartera, <strong>qué % sigue con suscripción activa</strong>. Es una aproximación de la retención M2/M3 de sus cuentas.</p>
+      <div class="llenar"><b>Qué hay que llenar</b>El estado de suscripción viene automático. Lo que SÍ depende del setuper: que cada cuenta del handoff quede <strong>asignada a su nombre</strong> y que el WKS tenga <strong>fecha de plan contratado</strong> — sin esa fecha, la cuenta no entra al cálculo.</div>
+    </div>
+    <div class="como-card" style="border-top-color:var(--sd)">
+      <h4>🎯 Objetivos y semáforos</h4>
+      <p><strong>Verde</strong> = en objetivo o arriba. <strong>Amarillo</strong> = a menos de 10% de llegar. <strong>Rojo</strong> = debajo. <strong>Gris s/d</strong> = falta el dato o falta definir el objetivo.</p>
+      <div class="llenar"><b>Quién define los objetivos</b>Se configuran en el tablero (archivo config.js). Si una tarjeta dice "Objetivo: s/d", el objetivo aún no está definido.</div>
+    </div>
+  </div></details>`;
+}
+
+// ---------- Embudo del mes (modelo cascada) ----------
+function embudoHTML(cm, hs){
+  const ME = METalmacen.embudo || {};
+  const nb = cm?.nuevo_negocio;           // ChartMogul: vendidos reales del mes
+  const em = hs?.embudo;                  // HubSpot: cohorte y etapas
+  if(!nb && !em) return "";
+  const obj = ME.vendidos_mes ?? null;
+  const casc = ME.cascada ?? null;
+  const maxN = Math.max(obj||0, nb?.n||0, ...(em?.etapas||[]).map(e=>e.n), 1);
+
+  const fila = (label, n, base, sub, colorSem) => {
+    const pctBase = base!=null && base>0 && n!=null ? Math.round((n/base)*100) : null;
+    const w = n!=null ? Math.max(2,(n/maxN)*100) : 2;
+    const s = colorSem ?? (pctBase!=null && casc!=null ? SEM(pctBase, casc) : "sd");
+    return `<div class="emb-row">
+      <span class="emb-label">${esc(label)}</span>
+      <div class="emb-barwrap"><div class="emb-bar" style="width:${w}%;background:${SEM_COLOR[s]==="var(--sd)"?"var(--brand)":SEM_COLOR[s]}"></div></div>
+      <span class="emb-n">${n==null?"s/d":n}</span>
+      <span class="emb-pct">${pctBase!=null?`${pctBase}% ${sub||""}`:(sub||"")}</span>
+    </div>`;
+  };
+
+  let filas = "";
+  // 1) Objetivo de vendidos
+  if(obj!=null) filas += fila("🎯 Objetivo vendidos", obj, null, "meta del mes", "sd");
+  // 2) Vendidos reales (CM new business, tiempo real)
+  if(nb) filas += fila("Vendidos (CM · en vivo)", nb.n, obj, obj!=null?"del objetivo":"", obj!=null?SEM(Math.round((nb.n/obj)*100), 100*(diaMesPct())):null);
+  // 3) Etapas del pipeline: % vs la etapa anterior (cascada)
+  if(em?.etapas?.length){
+    let prev = nb?.n ?? em.vendidos_hs;
+    em.etapas.forEach((e,i)=>{
+      filas += fila(e.label, e.n, prev, "de la etapa anterior");
+      if(e.n>0) prev = e.n; // la base de la siguiente es lo que avanzó
+    });
+  }
+
+  return `<section class="embudo">
+    <div class="emb-hd">
+      <h3>Embudo del mes ${em?.mes||nb?.mes||""}</h3>
+      <span class="emb-sub">Objetivo → vendidos (ChartMogul, tiempo real) → avance por etapa (HubSpot). Cada etapa se mide contra lo que le entregó la anterior${casc!=null?` · objetivo de cascada: ${casc}%`:" · objetivo de cascada: s/d"}.</span>
+    </div>
+    ${filas}
+    ${em?.nota?`<p class="live-nota">${esc(em.nota)}</p>`:""}
+    ${em?.error?`<p class="live-nota live-nota-err">Embudo HS: ${esc(em.error)}</p>`:""}
+  </section>`;
+}
+// % del mes transcurrido (para colorear vendidos vs objetivo con pro-rata)
+function diaMesPct(){
+  const now = new Date();
+  const dias = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  return now.getDate()/dias;
+}
+
 function render(st){
+  METalmacen = st.metas || METalmacen;
   const cm = st.chartmogul?.data, hs = st.hubspot?.data;
   const cab = cm?.cohortes?.cabecera, con = cm?.conexion;
   const err = st.chartmogul?.error || st.hubspot?.error;
   const MAX = 45;
-
-  const outc = (label, v, sub) => `<div class="ocard"><div class="ocard-label">${label}</div>
-    <div class="ocard-valor ${v==null?"ocard-sd":""}">${fmt(v)}</div>
-    <div class="ocard-sub">${esc(sub)}</div></div>`;
+  const MO = METalmacen.outcomes || {};
 
   const liveDe = (etapaId, nombre) => {
     if(!hs) return null;
+    if(etapaId==="conexion") return hs.conexion_hs?.[nombre];
     if(etapaId==="activacion") return hs.activacion?.[nombre];
     if(etapaId==="adopcion") return hs.adopcion?.[nombre];
     if(etapaId==="health") return hs.health?.[nombre];
@@ -188,12 +323,14 @@ function render(st){
   </header>
 
   <section class="outcomes">
-    ${outc("Retención M1", cab?.m1, cab?`ChartMogul · cohorte ${cab.cohorte} (n=${cab.n})`:"ChartMogul")}
-    ${outc("Retención M2", cab?.m2, cab?`ChartMogul · cohorte ${cab.cohorte}`:"ChartMogul")}
-    ${outc("Retención M3", cab?.m3, cab?`ChartMogul · cohorte ${cab.cohorte}`:"ChartMogul")}
-    ${outc("Conexión estable", con?.valor, con?`CM · cohorte ${con.cohorte}`:"ChartMogul")}
+    ${outcardHTML("Retención M1", cab?.m1 ?? null, MO.m1, cab?`ChartMogul · cohorte ${cab.cohorte} (n=${cab.n})`:"ChartMogul")}
+    ${outcardHTML("Retención M2", cab?.m2 ?? null, MO.m2, cab?`ChartMogul · cohorte ${cab.cohorte}`:"ChartMogul")}
+    ${outcardHTML("Retención M3", cab?.m3 ?? null, MO.m3, cab?`ChartMogul · cohorte ${cab.cohorte}`:"ChartMogul")}
+    ${outcardHTML("Conexión estable", con?.valor ?? null, MO.conexion, con?`CM · cohorte ${con.cohorte}`:"ChartMogul")}
   </section>
   ${err?`<p class="live-nota live-nota-err">Fuente con error: ${esc(err)} — se muestra el último dato bueno o "s/d".</p>`:""}
+
+  ${embudoHTML(cm, hs)}
 
   <div class="riel-wrap"><div class="riel">
     ${ETAPAS.map(e=>`<div class="riel-seg" style="background:${e.color};left:${e.d0/MAX*100}%;width:${(e.d1-e.d0)/MAX*100}%${e.id==="health"?";border-right:3px dashed rgba(255,255,255,.6)":""}"><span class="riel-nombre">${e.nombre}</span></div>`).join("")}
@@ -202,8 +339,13 @@ function render(st){
   </div>
   <p class="riel-nota">Las ventanas de días son <strong>topes máximos</strong> (agilidad), no tiempos de espera: el cliente avanza de etapa en cuanto cumple.</p></div>
 
+  ${comoHTML()}
+
   <main class="etapas">
-    ${ETAPAS.map(e=>`
+    ${ETAPAS.map(e=>{
+      const metaEtapa = METalmacen.etapas?.[e.id] ?? null;
+      const sE = e.id==="conexion" ? SEM(con?.valor ?? null, metaEtapa) : null;
+      return `
     <section class="etapa" style="border-top-color:${e.color}">
       <div class="etapa-hd">
         <div class="etapa-hd-l"><span class="etapa-orden">${e.orden}</span>
@@ -217,13 +359,15 @@ function render(st){
       <div class="stage-live">
         <div class="stage-live-l">
           <span class="stage-live-label">KPI de etapa · en vivo (CM)</span>
-          <span class="stage-live-valor">${fmt(con?.valor)}</span>
+          <span class="stage-live-valor" style="color:${SEM_COLOR[sE]}">${fmt(con?.valor)}</span>
+          <span class="stage-live-n" style="font-size:12px">${metaLinea(con?.valor ?? null, metaEtapa)}</span>
           ${con&&con.n_total?`<span class="stage-live-n">${con.n_segmento}/${con.n_total} · ${con.cohorte}</span>`:""}
+          ${con&&con.n_sin_atributo?`<span class="warn-chip">⚠ ${con.n_sin_atributo} sin atributo llenado</span>`:""}
         </div>
         <span class="stage-live-nota">${esc(con?.nota||"Sin datos de ChartMogul.")}</span>
       </div>`:""}
-      <div class="etapa-cards">${e.personas.map(p=>personaHTML(p, liveDe(e.id,p))).join("")}</div>
-    </section>`).join("")}
+      <div class="etapa-cards">${e.personas.map(p=>personaHTML(p, e.id, liveDe(e.id,p))).join("")}</div>
+    </section>`;}).join("")}
   </main>
 
   <details class="valid"><summary>Tabla de validación (cohortes CM + notas de fuentes)</summary>
@@ -233,7 +377,7 @@ function render(st){
     ${hs?.props_usadas?`<p class="live-nota">Props HS: ${esc(Object.entries(hs.props_usadas).map(([k,v])=>k+"="+(v||"s/d")).join(", "))}</p>`:""}
   </details>
 
-  <footer class="ft"><p>Fuentes: ChartMogul (cohortes calculadas vía API + atributo Conexion_Exitosa_OB_M) y HubSpot (objeto WKS: % usuarios activos, health score, estado de suscripción). Health = proxy de retención M2/M3, no cohorte real. Refresh: diario 9:00 CDMX + botón manual. Sin fuente → "s/d". Nunca se muestran números inventados.</p></footer>`;
+  <footer class="ft"><p>Fuentes: ChartMogul (cohortes vía API + atributo Conexion_Exitosa_OB_M) y HubSpot (objeto WKS: % usuarios activos, health score, estado de suscripción). Health = proxy de retención M2/M3, no cohorte real. Objetivos: config.js. Refresh: diario 9:00 CDMX + botón manual. Sin fuente → "s/d". Nunca se muestran números inventados.</p></footer>`;
 }
 
 async function cargar(){
@@ -248,12 +392,11 @@ async function cargar(){
 async function refrescar(btn){
   btn.disabled = true; btn.textContent = "…";
   await fetch("/api/refresh",{method:"POST"}).catch(()=>{});
-  // polling: el refresh tarda (pagina clientes de CM). Reintenta cada 5s hasta 2 min.
   const t0 = Date.now();
   const iv = setInterval(async ()=>{
     const st = await fetch("/api/data").then(r=>r.json()).catch(()=>null);
     if(st && !st.refrescando){ clearInterval(iv); render(st); }
-    else if(Date.now()-t0 > 120000){ clearInterval(iv); cargar(); }
+    else if(Date.now()-t0 > 180000){ clearInterval(iv); cargar(); }
   }, 5000);
 }
 

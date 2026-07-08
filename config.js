@@ -1,54 +1,89 @@
 // ================================================================
 // CONFIG — todo lo ajustable vive aquí. NO pongas credenciales:
 // esas van en variables de entorno de Railway.
+//
+// PARA EDITAR OBJETIVOS: GitHub → config.js → icono de lápiz →
+// cambia los números → Commit changes. Railway se actualiza solo
+// en ~1 minuto.
 // ================================================================
 module.exports = {
+  // ================================================
+  // OBJETIVOS (lo que pidió David: objetivo vs real)
+  // null = sin objetivo definido → se muestra "obj s/d"
+  // Todos en % (ej. 90 significa 90%)
+  // ================================================
+  METAS: {
+    // --- Embudo del mes (modelo de David: cascada) ---
+    embudo: {
+      vendidos_mes: 140,  // objetivo de clientes vendidos del mes (todas las fuentes)
+      cascada: null,      // % objetivo de avance entre etapas, ej. 90 → cada etapa
+                          // debe retener el 90% de lo que le entregó la anterior.
+                          // null = sin objetivo definido aún.
+    },
+    // --- Cabecera company-level ---
+    outcomes: {
+      m1: null,        // Retención M1 objetivo, ej. 90
+      m2: null,        // Retención M2 objetivo, ej. 80
+      m3: null,        // Retención M3 objetivo, ej. 75
+      conexion: null,  // Conexión estable objetivo, ej. 85
+    },
+    // --- KPI de cada etapa (aplica a todas sus personas) ---
+    etapas: {
+      conexion: null,   // ej. 85 → % del cohorte con conexión estable
+      activacion: null, // ej. 70 → % de cuentas con equipo activo
+      adopcion: null,   // ej. 80 → % de cuentas sanas al día 31
+      health: null,     // ej. 90 → % de cuentas retenidas post-handoff
+    },
+    // --- Overrides por persona (opcional; si está vacío usa el de su etapa) ---
+    personas: {
+      // ej.  Kari: 85,
+    },
+  },
+
   // ---- Cron: hora de refresh diario (CDMX) ----
   CRON_EXPR: "0 9 * * *",            // 9:00 am todos los días
   TZ: "America/Mexico_City",
 
   // ---- ChartMogul ----
   CM_BASE: "https://api.chartmogul.com/v1",
-  // Atributo custom que define el segmento de conexión exitosa
   CM_CONEXION_ATTR: "Conexion_Exitosa_OB_M",
-  // Valores del atributo que cuentan como "conexión exitosa".
-  // Vacío / null / "No_Exitosa" NO cuentan.
   CM_CONEXION_OK_VALUES: ["Cloud_API", "COEX"],
-  // Días mínimos transcurridos para que un cohorte cuente en el KPI de Conexión
   CM_CONEXION_MIN_DIAS: 14,
-  // Cuántos meses de cohortes calcular para la cabecera (M1/M2/M3)
   CM_COHORT_MONTHS: 12,
 
   // ---- HubSpot ----
   HS_BASE: "https://api.hubapi.com",
   HS_WKS_OBJECT: "2-31662723",
-  HS_PIPELINE: "127077535",
-  // Owners conocidos (setuper_owner). Karla y Rich se buscan por nombre
-  // en /crm/v3/owners si no están aquí; si los consigues, hardcodéalos.
+  // Pipelines a considerar. Cuando la reestructura por especialización
+  // esté viva, /api/debug lista los nuevos IDs — se agregan aquí.
+  HS_PIPELINES: ["127077535"],
   HS_OWNERS: {
+    conexion: { Zahid: "1283824961", Fer: "1947374481" },
     activacion: { Manu: "80424381", Eli: "1177408266" },
     adopcion: { Mar: "529758793", Kari: "723729026", Karla: null },
     health: { Ana: "529786548", Rich: null },
   },
-  // Nombres para búsqueda en /crm/v3/owners cuando el ID es null
-  HS_OWNER_LOOKUP: { Karla: "Karla", Rich: "Ricardo" },
-  // Labels (como se ven en el UI) de las propiedades del WKS.
-  // El código descubre el nombre interno buscando estos labels en
-  // /crm/v3/properties — NUNCA adivina nombres internos.
+  HS_OWNER_LOOKUP: { Karla: "karla.camarillo@leadsales.io", Rich: "ricardo.garcia@leadsales.io" },
   HS_PROP_LABELS: {
+    // — cards del Overview (hilo requests-ob) —
+    sesiones: ["Sesiones OB asistidas", "Sesiones OB"],
+    wapi_connected: ["WAPI connected"],
+    tipo_conexion: ["Tipo de conexión WAPI", "Tipo de conexion WAPI", "Tipo conexión"],
+    lead_agent: ["Lead Agent"],
+    plantillas: ["Plantillas creadas"],
+    calidad_plantillas: ["Calidad de plantillas", "Calidad plantillas"],
+    estado_wapi: ["WAPI - Estado", "WAPI – Estado", "WAPI Estado"],
+    health_tier: ["WAPI - Health Tier", "WAPI – Health Tier", "WAPI Health Tier"],
+    adoption_owner: ["Adoption Owner"],
     usuarios_activos: ["% usuarios activos"],
     health_score: ["WAPI - Health Score", "WAPI – Health Score", "WAPI Health Score"],
     subscription_status: ["Subscription Status"],
-    plan_contratado: ["fecha_plan_contratado"], // este sí es nombre interno conocido
+    plan_contratado: ["fecha_plan_contratado"],
   },
-  // Overrides directos (si ya conoces el nombre interno, ponlo aquí y
-  // te saltas el discovery): ej. usuarios_activos: "porcentaje_usuarios_activos"
   HS_PROP_OVERRIDES: {
     plan_contratado: "fecha_plan_contratado",
   },
-  // Umbrales de KPI
-  KPI_ACTIVACION_MIN: 60, // % usuarios activos >= 60 → equipo activo
-  KPI_ADOPCION_MIN: 80,   // health score >= 80 → cuenta sana
-  // Estatus de suscripción que cuentan como retenido (Health)
+  KPI_ACTIVACION_MIN: 60,
+  KPI_ADOPCION_MIN: 80,
   HS_SUB_ACTIVE_VALUES: ["ACTIVE", "active", "PAUSED", "paused", "PAST_DUE", "past_due"],
 };
