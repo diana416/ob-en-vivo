@@ -1,4 +1,4 @@
-# OB en vivo — Leadsales
+ # OB en vivo — Leadsales
 
 Tablero de Onboarding por etapa/persona/KPI. Refresh automático diario **9:00 CDMX**
 + botón manual. Fuentes: ChartMogul API + HubSpot API (objeto WKS).
