@@ -99,11 +99,22 @@ async function fetchChartMogul() {
     return monthKey(since) === conKey && since <= cutoff;
   });
   let nSeg = 0, nSinAttr = 0;
+  const clientesConex = [];
   for (const c of cohortCustomers) {
     const v = c.attributes?.custom?.[CFG.CM_CONEXION_ATTR];
-    if (v == null || v === "") nSinAttr += 1;
-    else if (CFG.CM_CONEXION_OK_VALUES.includes(String(v))) nSeg += 1;
+    const vacio = v == null || v === "";
+    const ok = !vacio && CFG.CM_CONEXION_OK_VALUES.includes(String(v));
+    if (vacio) nSinAttr += 1;
+    else if (ok) nSeg += 1;
+    clientesConex.push({
+      uuid: c.uuid,
+      nombre: c.name || c.email || c.uuid,
+      logrado: vacio ? null : ok, // null = atributo sin llenar
+      dato: vacio ? null : String(v),
+    });
   }
+  // Orden: sin atributo al final, logrados primero
+  clientesConex.sort((a, b) => (b.logrado === true) - (a.logrado === true) || (a.logrado === null) - (b.logrado === null));
   const conexion = cohortCustomers.length > 0
     ? {
         valor: +((nSeg / cohortCustomers.length) * 100).toFixed(1),
@@ -111,9 +122,10 @@ async function fetchChartMogul() {
         n_total: cohortCustomers.length,
         n_sin_atributo: nSinAttr,
         cohorte: conKey,
+        clientes: clientesConex,
         nota: `Cohorte ${conKey}, ≥${CFG.CM_CONEXION_MIN_DIAS} días. Éxito = ${CFG.CM_CONEXION_ATTR} con valor ${CFG.CM_CONEXION_OK_VALUES.join(" o ")}. ${nSinAttr} de ${cohortCustomers.length} tienen el atributo VACÍO y hoy cuentan como no logrado.`,
       }
-    : { valor: null, n_segmento: null, n_total: 0, n_sin_atributo: 0, cohorte: conKey, nota: "Sin clientes evaluables en la ventana." };
+    : { valor: null, n_segmento: null, n_total: 0, n_sin_atributo: 0, cohorte: conKey, clientes: [], nota: "Sin clientes evaluables en la ventana." };
 
   // New Business del mes en curso (tiempo real): clientes que empezaron
   // a pagar este mes calendario (todas las fuentes: trial→plan, outbound, inbound)

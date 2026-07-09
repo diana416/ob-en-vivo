@@ -1,6 +1,16 @@
 // ================================================================
-// HubSpot fetcher v3 — guiado por las CARDS del Overview del WKS
-// (no por etapas de pipeline, que están por reestructurarse).
+// HubSpot fetcher v4 — cards del Overview + PROXIES v1 + DRILL-DOWN
+//
+// Cambios v4 (jul 2026):
+//  1. PROXY v1: si el dato primario de una persona no existe todavía
+//     (ej. "% usuarios activos" sin llenar), se calcula un proxy con
+//     datos que SÍ existen (las condiciones de las cards) y se marca
+//     proxy:true. Nunca se inventa: si tampoco hay datos para el
+//     proxy, se reporta n=0 o sin_dato.
+//  2. "0 cuentas" ≠ "sin dato": n=0 se reporta explícito.
+//  3. DRILL-DOWN: cada métrica incluye `clientes` = lista de WKS
+//     (id, nombre, logrado, dato) para abrir el detalle en el front
+//     con link directo al record de HubSpot.
 //
 // Lógica de avance (hilo Slack requests-ob, jul 2026):
 //  CONEXIÓN lograda:   Sesiones OB >= 1 AND (WAPI connected = Sí OR Tipo conexión poblado)
@@ -9,8 +19,8 @@
 //
 // Owners por especialización:
 //  Conexión/Activación → setuper_owner
-//  Adopción/Health     → adoption owner (Ana y Rich viven ahí hoy;
-//                        cuando exista "health owner" se cambia en config)
+//  Adopción/Health     → adoption owner (fallback: setuper_owner si
+//                        la propiedad no se descubre)
 //
 // Termómetro: todo se calcula sobre el COHORTE DEL MES
 // (WKS con plan contratado en el mes en curso).
@@ -19,6 +29,8 @@ const CFG = require("./config");
 
 const PAT = process.env.HUBSPOT_PAT;
 const H = () => ({ Authorization: `Bearer ${PAT}`, "Content-Type": "application/json" });
+
+const NAME_PROP = "workspace_name";
 
 async function hsGet(path) {
   const res = await fetch(CFG.HS_BASE + path, { headers: H() });
@@ -118,6 +130,17 @@ function adopcionLograda(p, pr) {
 
 const pct = (hits, n) => (n > 0 ? +((hits / n) * 100).toFixed(1) : null);
 
+// ---- Drill-down: entrada de cliente para las listas ----
+// dato = el valor crudo que se evaluó (para mostrarlo en el modal)
+function cliente(w, logrado, dato) {
+  return {
+    id: w.id,
+    nombre: poblado(w.properties[NAME_PROP]) ? w.properties[NAME_PROP] : `WKS ${w.id}`,
+    logrado: logrado === null ? null : !!logrado, // null = sin dato evaluable
+    dato: dato == null || String(dato).trim() === "" ? null : String(dato),
+  };
+}
+
 async function fetchHubSpot() {
   if (!PAT) return { error: "HUBSPOT_PAT no configurada" };
 
@@ -131,9 +154,13 @@ async function fetchHubSpot() {
   const iniMes = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1);
   const planProp = props.plan_contratado || "fecha_plan_contratado";
   const ownerAdopProp = props.adoption_owner; // puede ser null si no se descubre
+  // Fallback: si no existe la propiedad de Adoption Owner, Adopción se
+  // evalúa por setuper_owner (marcado en la nota).
+  const adopOwnerProp = ownerAdopProp || "setuper_owner";
+  if (!ownerAdopProp) notas.push("Adoption Owner no descubierto → Adopción usa setuper_owner como fallback.");
 
   const propsNecesarias = [
-    planProp, "setuper_owner", ...(ownerAdopProp ? [ownerAdopProp] : []),
+    planProp, "setuper_owner", NAME_PROP, ...(ownerAdopProp ? [ownerAdopProp] : []),
     props.sesiones, props.wapi_connected, props.tipo_conexion,
     props.lead_agent, props.plantillas, props.calidad_plantillas,
     props.usuarios_activos, props.health_score, props.health_tier, props.estado_wapi,
@@ -168,16 +195,20 @@ async function fetchHubSpot() {
   }
 
   // ================= EMBUDO (condiciones de las cards, no stages) =================
-  const nConex = cohorte.filter((w) => conexionLograda(w.properties, props)).length;
-  const nActiv = cohorte.filter((w) => activacionLograda(w.properties, props)).length;
-  const nAdop = cohorte.filter((w) => adopcionLograda(w.properties, props)).length;
+  const cConex = cohorte.filter((w) => conexionLograda(w.properties, props));
+  const cActiv = cohorte.filter((w) => activacionLograda(w.properties, props));
+  const cAdop = cohorte.filter((w) => adopcionLograda(w.properties, props));
   out.embudo = {
     mes,
     vendidos_hs: cohorte.length,
+    clientes_cohorte: cohorte.map((w) => cliente(w, null, w.properties["setuper_owner"])),
     etapas: [
-      { label: "Conexión lograda", n: nConex },
-      { label: "Activación lograda", n: nActiv },
-      { label: "Adopción lograda (→ handoff)", n: nAdop },
+      { label: "Conexión lograda", n: cConex.length,
+        clientes: cConex.map((w) => cliente(w, true, w.properties[props.tipo_conexion])) },
+      { label: "Activación lograda", n: cActiv.length,
+        clientes: cActiv.map((w) => cliente(w, true, w.properties[props.lead_agent])) },
+      { label: "Adopción lograda (→ handoff)", n: cAdop.length,
+        clientes: cAdop.map((w) => cliente(w, true, w.properties[props.health_score])) },
     ],
     nota: `Cohorte: WKS con plan contratado en ${mes}${notaFmt}. Avance evaluado con las condiciones de las cards del Overview (no con etapas de pipeline, que están por cambiar).`,
   };
@@ -185,49 +216,93 @@ async function fetchHubSpot() {
   // ================= TERMÓMETRO POR PERSONA (mismo cohorte del mes) =================
   const delMesDe = (ownerProp, ownerId) => cohorte.filter((w) => String(w.properties[ownerProp] || "") === String(ownerId));
 
-  // Conexión (Zahid/Fer): % de SUS cuentas del mes con conexión lograda
+  // ---- Conexión (Zahid/Fer): % de SUS cuentas del mes con conexión lograda (cards) ----
   for (const [nombre, ownerId] of Object.entries(owners.conexion || {})) {
-    if (!ownerId) { out.conexion_hs[nombre] = { valor: null, n: null }; continue; }
+    if (!ownerId) { out.conexion_hs[nombre] = { valor: null, n: null, sin_owner: true }; continue; }
     const mias = delMesDe("setuper_owner", ownerId);
-    out.conexion_hs[nombre] = { valor: pct(mias.filter((w) => conexionLograda(w.properties, props)).length, mias.length), n: mias.length };
+    out.conexion_hs[nombre] = {
+      valor: pct(mias.filter((w) => conexionLograda(w.properties, props)).length, mias.length),
+      n: mias.length,
+      clientes: mias.map((w) => cliente(w, conexionLograda(w.properties, props),
+        poblado(w.properties[props.tipo_conexion]) ? w.properties[props.tipo_conexion]
+          : (esSi(w.properties[props.wapi_connected]) ? "WAPI connected" : `sesiones: ${nSesiones(w.properties[props.sesiones])}`))),
+    };
   }
 
-  // Activación (Manu/Eli): % de sus cuentas del mes con % usuarios activos >= 60
+  // ---- Activación (Manu/Eli) ----
+  // Primario: % usuarios activos >= 60 (si al menos 1 cuenta tiene el dato).
+  // Proxy v1: condición de cards (sesiones>=2 + Lead Agent + plantillas) si NADIE tiene el dato.
   for (const [nombre, ownerId] of Object.entries(owners.activacion)) {
-    if (!ownerId || !props.usuarios_activos) { out.activacion[nombre] = { valor: null, n: null }; continue; }
+    if (!ownerId) { out.activacion[nombre] = { valor: null, n: null, sin_owner: true }; continue; }
     const mias = delMesDe("setuper_owner", ownerId);
-    const conDato = mias.filter((w) => poblado(w.properties[props.usuarios_activos]));
-    out.activacion[nombre] = {
-      valor: pct(conDato.filter((w) => parseFloat(w.properties[props.usuarios_activos]) >= CFG.KPI_ACTIVACION_MIN).length, conDato.length),
-      n: conDato.length, n_sin_dato: mias.length - conDato.length,
-    };
+    const conDato = props.usuarios_activos ? mias.filter((w) => poblado(w.properties[props.usuarios_activos])) : [];
+
+    if (conDato.length > 0) {
+      out.activacion[nombre] = {
+        valor: pct(conDato.filter((w) => parseFloat(w.properties[props.usuarios_activos]) >= CFG.KPI_ACTIVACION_MIN).length, conDato.length),
+        n: conDato.length, n_sin_dato: mias.length - conDato.length, proxy: false,
+        clientes: mias.map((w) => {
+          const tiene = poblado(w.properties[props.usuarios_activos]);
+          return cliente(w, tiene ? parseFloat(w.properties[props.usuarios_activos]) >= CFG.KPI_ACTIVACION_MIN : null,
+            tiene ? `${w.properties[props.usuarios_activos]}% usuarios activos` : null);
+        }),
+      };
+    } else {
+      // Proxy v1 — dato primario inexistente en TODO su cohorte
+      out.activacion[nombre] = {
+        valor: pct(mias.filter((w) => activacionLograda(w.properties, props)).length, mias.length),
+        n: mias.length, n_sin_dato: 0, proxy: true,
+        proxy_def: "≥2 sesiones + Lead Agent + plantillas (cards)",
+        clientes: mias.map((w) => cliente(w, activacionLograda(w.properties, props),
+          `sesiones: ${nSesiones(w.properties[props.sesiones])}${poblado(w.properties[props.lead_agent]) ? " · Lead Agent ✓" : ""}`)),
+      };
+    }
   }
 
-  // Adopción (Mar/Kari/Karla): % de sus cuentas del mes (adoption owner) con health >= 80
+  // ---- Adopción (Mar/Kari/Karla) ----
+  // Primario: health score >= 80. Proxy v1: condición de cards de adopción.
   for (const [nombre, ownerId] of Object.entries(owners.adopcion)) {
-    if (!ownerId || !ownerAdopProp || !props.health_score) { out.adopcion[nombre] = { valor: null, n: null }; continue; }
-    const mias = delMesDe(ownerAdopProp, ownerId);
-    const conDato = mias.filter((w) => poblado(w.properties[props.health_score]));
-    out.adopcion[nombre] = {
-      valor: pct(conDato.filter((w) => parseFloat(w.properties[props.health_score]) >= CFG.KPI_ADOPCION_MIN).length, conDato.length),
-      n: conDato.length, n_sin_dato: mias.length - conDato.length,
-    };
+    if (!ownerId) { out.adopcion[nombre] = { valor: null, n: null, sin_owner: true }; continue; }
+    const mias = delMesDe(adopOwnerProp, ownerId);
+    const conDato = props.health_score ? mias.filter((w) => poblado(w.properties[props.health_score])) : [];
+
+    if (conDato.length > 0) {
+      out.adopcion[nombre] = {
+        valor: pct(conDato.filter((w) => parseFloat(w.properties[props.health_score]) >= CFG.KPI_ADOPCION_MIN).length, conDato.length),
+        n: conDato.length, n_sin_dato: mias.length - conDato.length, proxy: false,
+        clientes: mias.map((w) => {
+          const tiene = poblado(w.properties[props.health_score]);
+          return cliente(w, tiene ? parseFloat(w.properties[props.health_score]) >= CFG.KPI_ADOPCION_MIN : null,
+            tiene ? `health ${w.properties[props.health_score]}` : null);
+        }),
+      };
+    } else {
+      out.adopcion[nombre] = {
+        valor: pct(mias.filter((w) => adopcionLograda(w.properties, props)).length, mias.length),
+        n: mias.length, n_sin_dato: 0, proxy: true,
+        proxy_def: "health tier o estado WAPI ≠ no conectado (cards)",
+        clientes: mias.map((w) => cliente(w, adopcionLograda(w.properties, props),
+          poblado(w.properties[props.estado_wapi]) ? `estado: ${w.properties[props.estado_wapi]}` : null)),
+      };
+    }
   }
 
-  // Health (Ana/Rich): % de su cartera (adoption owner hoy) con suscripción activa.
-  // Nota: es STOCK (toda su cartera con plan), no cohorte del mes — el handoff no tiene fecha propia.
+  // ---- Health (Ana/Rich): % de su cartera con suscripción activa (STOCK, proxy) ----
   for (const [nombre, ownerId] of Object.entries(owners.health)) {
-    if (!ownerId || !ownerAdopProp || !props.subscription_status) { out.health[nombre] = { valor: null, n: null }; continue; }
+    if (!ownerId || !props.subscription_status) { out.health[nombre] = { valor: null, n: null, sin_owner: !ownerId }; continue; }
     const filters = [
       ...pipeFilter,
-      { propertyName: ownerAdopProp, operator: "EQ", value: ownerId },
+      { propertyName: adopOwnerProp, operator: "EQ", value: ownerId },
       { propertyName: planProp, operator: "HAS_PROPERTY" },
     ];
-    const wks = await searchWKS(filters, [props.subscription_status]);
+    const wks = await searchWKS(filters, [props.subscription_status, NAME_PROP]);
     const conDato = wks.filter((w) => poblado(w.properties[props.subscription_status]));
     out.health[nombre] = {
       valor: pct(conDato.filter((w) => CFG.HS_SUB_ACTIVE_VALUES.includes(w.properties[props.subscription_status])).length, conDato.length),
       n: conDato.length, proxy: true,
+      clientes: conDato.map((w) => cliente(w,
+        CFG.HS_SUB_ACTIVE_VALUES.includes(w.properties[props.subscription_status]),
+        w.properties[props.subscription_status])),
     };
   }
 
