@@ -53,7 +53,6 @@ module.exports = {
 
   // ---- HubSpot ----
   HS_BASE: "https://api.hubapi.com",
-  HS_PORTAL_ID: "23715251",
   HS_WKS_OBJECT: "2-31662723",
   // Pipelines a considerar. Cuando la reestructura por especialización
   // esté viva, /api/debug lista los nuevos IDs — se agregan aquí.
