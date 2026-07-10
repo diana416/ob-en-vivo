@@ -259,17 +259,27 @@ function embudoHTML(cm, hs){
   };
 
   let filas = "";
-  // 1) Objetivo de vendidos
+  // 1) Objetivo de vendidos (solo referencia — la base del embudo son los reales)
   if(obj!=null) filas += fila("🎯 Objetivo vendidos", obj, null, "meta del mes", "sd");
-  // 2) Vendidos reales (CM new business, tiempo real)
-  if(nb) filas += fila("Vendidos (CM · en vivo)", nb.n, obj, obj!=null?"del objetivo":"", obj!=null?SEM(Math.round((nb.n/obj)*100), 100*(diaMesPct())):null);
-  // 3) Etapas del pipeline: % vs la etapa anterior (cascada)
+  // 2) Vendidos reales WAPI (CM new business, tiempo real) — base del embudo
+  if(nb) filas += fila("Vendidos WAPI (CM · en vivo)", nb.n, obj, obj!=null?"del objetivo":"", obj!=null?SEM(Math.round((nb.n/obj)*100), 100*(diaMesPct())):null);
+  // 3) Etapas del pipeline: % vs la etapa anterior (cascada Opción A)
+  let ultima = null;
   if(em?.etapas?.length){
     let prev = nb?.n ?? em.vendidos_hs;
     em.etapas.forEach((e,i)=>{
       filas += fila(e.label, e.n, prev, "de la etapa anterior");
       if(e.n>0) prev = e.n; // la base de la siguiente es lo que avanzó
+      ultima = e.n;
     });
+  }
+  // 4) Métrica GLOBAL: % de cierres del mes que llegan a Health (handoff).
+  // Evita que la cascada compuesta esconda fuga end-to-end (0.9^4 ≈ 66%).
+  const gt = ME.global_target ?? null;
+  const baseGlobal = nb?.n ?? em?.vendidos_hs ?? null;
+  if(ultima!=null && baseGlobal!=null && baseGlobal>0){
+    const pctG = Math.round((ultima/baseGlobal)*100);
+    filas += fila("🌡 Global: cierres → Health", ultima, baseGlobal, `de los cierres del mes${gt!=null?` · obj ${gt}%`:""}`, gt!=null?SEM(pctG, gt):"sd");
   }
 
   return `<section class="embudo">
@@ -278,6 +288,7 @@ function embudoHTML(cm, hs){
       <span class="emb-sub">Objetivo → vendidos (ChartMogul, tiempo real) → avance por etapa (HubSpot). Cada etapa se mide contra lo que le entregó la anterior${casc!=null?` · objetivo de cascada: ${casc}%`:" · objetivo de cascada: s/d"}.</span>
     </div>
     ${filas}
+    ${nb?.nota?`<p class="live-nota">${esc(nb.nota)}</p>`:""}
     ${em?.nota?`<p class="live-nota">${esc(em.nota)}</p>`:""}
     ${em?.error?`<p class="live-nota live-nota-err">Embudo HS: ${esc(em.error)}</p>`:""}
   </section>`;

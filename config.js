@@ -13,12 +13,14 @@ module.exports = {
   // Todos en % (ej. 90 significa 90%)
   // ================================================
   METAS: {
-    // --- Embudo del mes (modelo de David: cascada) ---
+    // --- Embudo del mes (modelo cascada, Opción A — confirmado jul 2026) ---
+    // Base = clientes NUEVOS del mes en ChartMogul, SOLO WAPI (ver CM_WAPI_PLANS).
+    // Cada etapa se mide contra lo que REALMENTE recibió de la anterior.
     embudo: {
-      vendidos_mes: 140,  // objetivo de clientes vendidos del mes (todas las fuentes)
-      cascada: null,      // % objetivo de avance entre etapas, ej. 90 → cada etapa
-                          // debe retener el 90% de lo que le entregó la anterior.
-                          // null = sin objetivo definido aún.
+      vendidos_mes: 140,  // objetivo de ventas del mes (solo referencia visual;
+                          // la base del embudo son los cierres REALES, no este número)
+      cascada: 90,        // cada etapa debe retener ≥90% de lo que le entregó la anterior
+      global_target: 66,  // % de cierres del mes que deben llegar a Health (0.9^4 ≈ 66%)
     },
     // --- Cabecera company-level ---
     outcomes: {
@@ -28,11 +30,12 @@ module.exports = {
       conexion: null,  // Conexión estable objetivo, ej. 85
     },
     // --- KPI de cada etapa (aplica a todas sus personas) ---
+    // Mismo estándar que la cascada: cada persona debe lograr ≥90% de SU base recibida.
     etapas: {
-      conexion: null,   // ej. 85 → % del cohorte con conexión estable
-      activacion: null, // ej. 70 → % de cuentas con equipo activo
-      adopcion: null,   // ej. 80 → % de cuentas sanas al día 31
-      health: null,     // ej. 90 → % de cuentas retenidas post-handoff
+      conexion: 90,   // % del cohorte con conexión estable
+      activacion: 90, // % de cuentas con equipo activo
+      adopcion: 90,   // % de cuentas sanas al día 31
+      health: 90,     // % de cuentas retenidas post-handoff
     },
     // --- Overrides por persona (opcional; si está vacío usa el de su etapa) ---
     personas: {
@@ -50,6 +53,9 @@ module.exports = {
   CM_CONEXION_OK_VALUES: ["Cloud_API", "COEX"],
   CM_CONEXION_MIN_DIAS: 14,
   CM_COHORT_MONTHS: 12,
+  // Planes que cuentan como WAPI para la base del embudo (New Business).
+  // Confirmado por Diana (jul 2026): solo Professional y Advanced.
+  CM_WAPI_PLANS: ["Professional", "Advanced"],
 
   // ---- HubSpot ----
   HS_BASE: "https://api.hubapi.com",

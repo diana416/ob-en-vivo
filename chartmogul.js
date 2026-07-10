@@ -115,12 +115,29 @@ async function fetchChartMogul() {
       }
     : { valor: null, n_segmento: null, n_total: 0, n_sin_atributo: 0, cohorte: conKey, nota: "Sin clientes evaluables en la ventana." };
 
-  // New Business del mes en curso (tiempo real): clientes que empezaron
-  // a pagar este mes calendario (todas las fuentes: trial→plan, outbound, inbound)
+  // New Business del mes en curso (tiempo real): clientes NUEVOS que empezaron
+  // a pagar este mes calendario. Base del embudo = SOLO WAPI
+  // (plan en CM_WAPI_PLANS — confirmado por Diana jul 2026). Los clientes cuyo
+  // plan no se pueda verificar se EXCLUYEN y se reportan en la nota (nunca se inventa).
   const mesActual = monthKey(now);
-  const nuevoNegocio = paid.filter((c) => monthKey(new Date(c["customer-since"])) === mesActual).length;
+  const nuevosDelMes = paid.filter((c) => monthKey(new Date(c["customer-since"])) === mesActual);
+  const wapiPlans = (CFG.CM_WAPI_PLANS || []).map((p) => String(p).toLowerCase());
+  let nWapi = 0, nSinVerificar = 0;
+  for (const c of nuevosDelMes) {
+    try {
+      const subs = await cmGetAll(`/customers/${c.uuid}/subscriptions`, {});
+      if (subs.some((s) => wapiPlans.includes(String(s.plan || "").toLowerCase()))) nWapi += 1;
+    } catch { nSinVerificar += 1; }
+  }
+  const nuevoNegocio = {
+    mes: mesActual,
+    n: nWapi,
+    n_todas_fuentes: nuevosDelMes.length,
+    nota: `Base del embudo = clientes nuevos del mes con plan ${(CFG.CM_WAPI_PLANS || []).join(" o ")} (solo WAPI). Nuevos totales todas las fuentes: ${nuevosDelMes.length}.` +
+      (nSinVerificar ? ` ⚠️ ${nSinVerificar} con plan no verificable — excluidos del conteo.` : ""),
+  };
 
-  return { cohortes: { tabla, cabecera }, conexion, nuevo_negocio: { mes: mesActual, n: nuevoNegocio }, error: null };
+  return { cohortes: { tabla, cabecera }, conexion, nuevo_negocio: nuevoNegocio, error: null };
 }
 
 module.exports = { fetchChartMogul };
